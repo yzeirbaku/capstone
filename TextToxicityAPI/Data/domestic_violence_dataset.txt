@@ -1,0 +1,99 @@
+How was your day?	1
+You need to be terrified of me.	0
+You look good tonight.	1
+Calm down please.	0
+I am tired of this shit.	0
+Tell me about your day.	1
+Shut up or I'll kick your ass.	0
+I'll fucking do it.	0
+Let's plan something nice for the weekend.	1
+Where should we go eat tonight?	1
+I don't care about what you have to say right now.	0
+It is all your fault.	0
+I would be scared if I were you right now.	0
+How did the kids do at school today?	1
+Should we go out for a walk?	1
+I will kill you with my own hands.	0
+You are fucking useless.	0
+Don't disrespect me or I will do something bad.	0
+What have you cooked tonight darling?	1
+I have bought you something and I want you to close your eyes.	1
+Don't mess with me bitch.	0
+How do you like the food honey?	1
+I cooked your favorite food and I hope you like it.	1
+Stop breaking things please!	0
+I will do whatever you want, just please stop.	0
+Please think of our children, don't do this.	0
+I beg you, don't do something that you might regret later.	0
+Thank you for cheering me up.	1
+You are the best wife in the world and I am happy to have you in my life.	1
+You are a fucking liar.	0
+Get away from me.	0
+If I'm going to jail I'm gonna earn it.	0
+If you don't calm down I will call the police.	0
+I was thinking of the next place where we should have our holidays and I think we should visit Europe this time.	1
+I hope I made you feel better.	1
+Call the 911 now.	0
+We should look for other options as I don't think it's a good idea.	1
+I will kill all of you tonight.	0
+You deserve to die.	0
+Nothing good ever comes out of you.	0
+Please tell me we are going to that restaurant you promised to take me.	1
+You look beautiful in that dress babe.	1
+I will shoot you right in the face.	0
+I am okay with spending the rest of my life in prison.	0
+I am okay with going to prison.	0
+Don't do this for the love of God.	0
+Don't make me do this, I don't want to hurt you.	0
+You look stressed, is everything fine love?	1
+I think we need sometime alone to forget about everything and relax.	1
+What do you think we should do tomorrow?	1
+I stil think of the first day we met.	1
+I love you and I always will.	1
+I think we need to get new furnitures for the kitchen.	1
+I am so happy that you solved your problem at work.	1
+Get dressed quickly, the taxi is here.	1
+Aren't you going to work today?	1
+Is the dinner ready yet babe?	1
+Well, what's for dinner tonight?	1
+I am going out with my friends, don't wait for me.	1
+Did you iron my clothes yet?	1
+what should we watch tonight?	1
+I am fine with you being dead.	0
+I wii be fine without you, you are going to die now.	0
+I am fine with going to jail.	0
+I want to know your opinion about it.	1
+I will do it right away.	1
+Have a nice day!	1
+Have fun in jail.	0
+I'm gonna fucking hurt him.	0
+Get your hands off me.	0
+Get away from me.	0
+You are out of control, you need to calm down.	0
+Put the phone down or I will hurt you.	0
+Put your gun away.	0
+Get your gun away from me.	0
+Cops come knock on my door, you're dead. 0
+I don't want to die, please.	0
+What should we do for the birthday party hun?	1
+I bought you this and I hope you like it.	1
+I am okay with you being dead.	0
+I am okay with spending the rest of my life in jail.	0
+I am okay with going to jail.	0
+I am fine with going to prison.	0
+I am fine with spending the rest of my life behind bars.	0
+You always look beautiful.	1
+You look gorgeous today.	1
+I fall in love with you everyday.	1
+Have you seen my jacket?	1
+Have you seen my phone?	1
+I cannot find my phone.	1
+Put your phone down or I'll shoot you.	0
+Where did the kids go?	1
+Please put your phone down and pay attention to me.	1
+Put your phone down and pay attention to me babe.	1
+My friend is in jail, I feel bad for him.	1
+Put your phone down and don't try to call anyone or I will shoot you.	0
+My mother went to the hospital today, I need to go and see her.	1
+We have a work dinner tonight, I hope it is not anything important.	1
+I hope my presentation goes well today.	1

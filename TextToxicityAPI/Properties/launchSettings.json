@@ -19,7 +19,7 @@
     "TextToxicityAPI": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "api/textsentiment",
+      "launchUrl": "api/textanalysis",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
