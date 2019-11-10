@@ -82,12 +82,6 @@ namespace TextToxicityAPI.Controllers
             }
         }
 
-        //[HttpPost]
-        //public IActionResult UpdateUser([FromHeader] string userId, )
-        //{
-
-        //}
-
         [HttpGet("all")]
         public IActionResult GetUsers([FromHeader] string userId)
         {
