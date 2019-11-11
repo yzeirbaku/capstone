@@ -16,10 +16,10 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "TextToxicityAPI": {
+    "DomesticViolenceAPI": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "api/textanalysis",
+      "launchUrl": "api/textanalysis/welcome",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },

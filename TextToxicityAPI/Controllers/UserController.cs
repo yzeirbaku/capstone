@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using LiteDB;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using TextToxicityAPI.Models;
 
 namespace TextToxicityAPI.Controllers
 {
@@ -12,6 +14,8 @@ namespace TextToxicityAPI.Controllers
     [Route("api/user")]
     public class UserController : Controller
     {
+        HelperMethods helperMethods = new HelperMethods();
+
         [HttpGet]
         public IActionResult GetUser([FromHeader] string userId)
         {
@@ -23,7 +27,7 @@ namespace TextToxicityAPI.Controllers
 
                 if (searchedUser == null || searchedUser.Id.Length == 0)
                 {
-                    return NotFound("The user with id " + searchedUser.userId + " could not be found!");
+                    return NotFound("The user with id " + userId + " could not be found!");
                 }
                 else
                 {
@@ -32,7 +36,7 @@ namespace TextToxicityAPI.Controllers
                     user.name = searchedUser.name;
                     user.age = searchedUser.age;
                     user.location = searchedUser.location;
-                    user.gender = getGender(searchedUser.gender);
+                    user.gender = helperMethods.getGender(searchedUser.gender);
                 }
             }
             return Ok(user);
@@ -55,7 +59,6 @@ namespace TextToxicityAPI.Controllers
                 };
                 users.Insert(newUser);
             }
-
             return Ok("The user " + name + " with id " + userId + " has been successfully saved in the database.");
         }
 
@@ -67,10 +70,9 @@ namespace TextToxicityAPI.Controllers
             {
                 var users = database.GetCollection<User>("User");
                 var userToBeDeleted = users.FindOne(x => x.userId == userId);
-
                 if (userToBeDeleted == null || userToBeDeleted.Id.Length == 0)
                 {
-                    return NotFound("The user with id " + userToBeDeleted.userId + " could not be found!");
+                    return NotFound("The user with id " + userId + " could not be found!");
                 }
                 else
                 {
@@ -79,6 +81,26 @@ namespace TextToxicityAPI.Controllers
                     users.Delete(idOfUserToBeDeleted);
                 }
                 return Ok("The user " + nameOfUserToBeDeleted + " with id " + userId + " has been successfully deleted from the database.");
+            }
+        }
+
+        [HttpPost("update")]
+        public IActionResult UpdateUser([FromHeader] string userId, [FromBody] string property)
+        {
+            using (var database = new LiteDatabase("TextAnalysis1.db"))
+            {
+                helperMethods.updateUser(userId, property);
+                var users = database.GetCollection<User>("User");
+                var updatedUser = users.FindOne(x => x.userId == userId);
+                if (updatedUser == null)
+                {
+                    return NotFound("The user with id " + userId + " could not be found!");
+                }
+                else
+                {
+                    updatedUser.gender = helperMethods.getGender(updatedUser.gender);
+                    return Ok(updatedUser);
+                }
             }
         }
 
@@ -92,7 +114,6 @@ namespace TextToxicityAPI.Controllers
                 var users = database.GetCollection<User>("User");
                 var genders = database.GetCollection<Gender>("Gender");
                 allUsers = users.Find(x => x.userId != null);
-
                 if (allUsers.Count() == 0)
                 {
                     return Ok("There are no users in the database.");
@@ -101,53 +122,11 @@ namespace TextToxicityAPI.Controllers
                 {
                     foreach (var user in allUsers)
                     {
-                        user.gender = getGender(user.gender);
+                        user.gender = helperMethods.getGender(user.gender);
                         jsonAllUsers.Add(user);
                     }
                 }
-
                 return Ok(jsonAllUsers);
-            }
-        }
-
-        private string getGender(string gender)
-        {
-            using (var database = new LiteDatabase(@"TextAnalysis1.db"))
-            {
-                var genders = database.GetCollection<Gender>("Gender");
-                var Female = new Gender { Id = Guid.NewGuid().ToString(), genderString = "Female" };
-                var Male = new Gender { Id = Guid.NewGuid().ToString(), genderString = "Male" };
-
-                if (genders.Count() == 0)
-                {
-                    genders.Insert(Female);
-                    genders.Insert(Male);
-
-                    if (gender == "1")
-                    {
-                        var maleGender = genders.FindOne(x => x.genderString == "Male");
-                        return maleGender.genderString;
-                    }
-                    else
-                    {
-                        var femaleGender = genders.FindOne(x => x.genderString == "Female");
-                        return femaleGender.genderString;
-                    }
-                }
-
-                else
-                {
-                    if (gender == "1")
-                    {
-                        var maleGender = genders.FindOne(x => x.genderString == "Male");
-                        return maleGender.genderString;
-                    }
-                    else
-                    {
-                        var femaleGender = genders.FindOne(x => x.genderString == "Female");
-                        return femaleGender.genderString;
-                    }
-                }
             }
         }
     }

@@ -14,6 +14,7 @@ using Newtonsoft.Json;
 using System.Text;
 using System.Text.RegularExpressions;
 using LiteDB;
+using TextToxicityAPI.Models;
 
 namespace TextToxicityAPI.Controllers
 {
@@ -21,8 +22,14 @@ namespace TextToxicityAPI.Controllers
     [Route("api/textanalysis")]
     public class TextAnalysisController : Controller
     {
+        HelperMethods helperMethods = new HelperMethods();
         public static string _dataPath = Path.Combine(Environment.CurrentDirectory, "Data", "domestic_violence_dataset.txt");
-        public static string _curseWordsInEnglishPath = Path.Combine(Environment.CurrentDirectory, "Data", "curses_in_english.txt");
+
+        [HttpGet("welcome")]
+        public ViewResult Welcome()
+        {   
+            return View();
+        }
 
         [HttpGet]
         public IActionResult GetTextAnalysis([FromBody] string text)
@@ -44,7 +51,7 @@ namespace TextToxicityAPI.Controllers
                 var user = allUsers.FindOne(x => x.userId == userId);
                 if (user == null)
                 {
-                    return NotFound("The user with id " + userId + " could not be found! Create an user first.");
+                    return NotFound("The user with id " + userId + " could not be found! Create the user first.");
                 }
                 else
                 {
@@ -61,6 +68,28 @@ namespace TextToxicityAPI.Controllers
                     usersTextAnalysis.Insert(newUserTextAnalysis);
                 }
                 return Ok("Text analysis information for user with id " + userId + " has been successfully saved in the database.");
+            }
+        }
+
+        [HttpDelete]
+        public IActionResult DeleteAllTextAnalyses()
+        {
+            using (var database = new LiteDatabase(@"TextAnalysis1.db"))
+            {
+                var usersTextAnalyses = database.GetCollection<TextAnalysis>("UserTextAnalysis");
+                var allTextAnalyses = usersTextAnalyses.FindAll();
+                foreach (var item in allTextAnalyses)
+                {
+                    usersTextAnalyses.Delete(item.Id);
+                }
+                if (usersTextAnalyses.Count() == 0)
+                {
+                    return Ok("All text analyses for all users have been deleted from the database.");
+                }
+                else
+                {
+                    return BadRequest("Could not delete all text analyses for all users!");
+                }
             }
         }
 
@@ -85,7 +114,7 @@ namespace TextToxicityAPI.Controllers
                     var textAnalysisToBeFound = usersTextAnalysis.Find(x => x.userId == userId);
                     if (textAnalysisToBeFound.Count() == 0)
                     {
-                        return NotFound("User with id " + userId + " has no text analysis saved.");
+                        return NotFound("The user with id " + userId + " has no text analysis saved.");
                     }
                     else
                     {
@@ -107,7 +136,7 @@ namespace TextToxicityAPI.Controllers
                             userId = userId,
                             name = user.name,
                             age = user.age,
-                            gender = user.gender
+                            gender = helperMethods.getGender(user.gender)
                         };
 
                         UserTextAnalysis userTextAnalysis = new UserTextAnalysis
@@ -120,6 +149,44 @@ namespace TextToxicityAPI.Controllers
                 }
             }
             return Ok(userTextAnalysisJson);
+        }
+
+        [HttpDelete("user")]
+        public IActionResult DeleteAllTextAnalysesForUser([FromQuery] string userId)
+        {
+            using (var database = new LiteDatabase(@"TextAnalysis1.db"))
+            {
+                var userTextAnalyses = database.GetCollection<TextAnalysis>("UserTextAnalysis");
+                var allUsers = database.GetCollection<User>("User");
+                var allUserTextAnalyses = userTextAnalyses.Find(x => x.userId == userId);
+                var user = allUsers.FindOne(x => x.userId == userId);
+                if (user == null)
+                {
+                    return NotFound("The user with id " + userId + " could not be found! Create the user first.");
+                }
+                else
+                {
+                    if (allUserTextAnalyses.Count() == 0)
+                    {
+                        return NotFound("The user with id " + userId + " has no text analysis saved.");
+                    }
+                    else
+                    {
+                        foreach (var item in allUserTextAnalyses)
+                        {
+                            userTextAnalyses.Delete(item.Id);
+                        }
+                        if (userTextAnalyses.Count() == 0)
+                        {
+                            return Ok("All text analyses for the user with id " + userId + " have been deleted from the database.");
+                        }
+                        else
+                        {
+                            return BadRequest("Could not delete text analyses for the user with id " + userId + "!");
+                        }
+                    }
+                }
+            }
         }
 
         #region ML
@@ -175,7 +242,7 @@ namespace TextToxicityAPI.Controllers
             //Console.WriteLine($"Sentiment: {resultPrediction.SentimentText} | Prediction: {(Convert.ToBoolean(resultPrediction.Prediction) ? "Positive" : "Negative")} | Probability: {resultPrediction.Probability} ");
 
             var resultPrediction = predictionFunction.Predict(sampleStatement);
-            var curseCount = profanityCheck(text);
+            var curseCount = helperMethods.profanityCheck(text);
 
             var punctuation = text.Where(Char.IsPunctuation).Distinct().ToArray();
             var words = text.Split().Select(x => x.Trim(punctuation));
@@ -205,80 +272,5 @@ namespace TextToxicityAPI.Controllers
         }
         #endregion
 
-        private int profanityCheck(string text)
-        {
-            StreamReader streamReader = new StreamReader(_curseWordsInEnglishPath);
-            string stringWithMultipleSpaces = streamReader.ReadToEnd();
-            streamReader.Close();
-            Regex r = new Regex(" +");
-            string[] curseWords = r.Split(stringWithMultipleSpaces);
-
-            int count = 0;
-            var punctuation = text.Where(Char.IsPunctuation).Distinct().ToArray();
-            var words = text.Split().Select(x => x.Trim(punctuation));
-
-
-            foreach (string word in words)
-            {
-                if (curseWords.Contains(word))
-                {
-                    count++;
-                }
-            }
-            return count;
-        }
-
     }
 }
-
-#region helperClasses
-public class TextAnalysisResult
-{
-    public string Context { get; set; }
-    public int CurseCount { get; set; }
-    public float CurseRatio { get; set; }
-    public float GoodContextProbability { get; set; }
-}
-
-public class User
-{
-    public string Id { get; set; }
-    public string userId { get; set; }
-    public string name { get; set; }
-    public string age { get; set; }
-    public string gender { get; set; }
-    public string location { get; set; }
-}
-
-public class UserTextAnalysis
-{
-    public UserInfo userInfo { get; set; }
-    public List<TextAnalysisInfo> textAnalysesInfo { get; set; }
-}
-
-public class UserInfo
-{
-    public string userId { get; set; }
-    public string name { get; set; }
-    public string gender { get; set; }
-    public string age { get; set; }
-}
-
-public class TextAnalysisInfo
-{
-    public string text { get; set; }
-    public string textAnalysisResult { get; set; }
-    public string timestamp { get; set; }
-    public string lastKnownLocation { get; set; }
-}
-
-public class TextAnalysis
-{
-    public string Id { get; set; }
-    public string userId { get; set; }
-    public string text { get; set; }
-    public string textAnalysisResult { get; set; }
-    public string timestamp { get; set; }
-    public string lastKnownLocation { get; set; }
-}
-#endregion

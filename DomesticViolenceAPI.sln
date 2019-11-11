@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27703.2042
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TextToxicityAPI", "TextToxicityAPI\TextToxicityAPI.csproj", "{1740E02F-2EFC-4DDE-A42F-CF1E3A76D4B8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DomesticViolenceAPI", "TextToxicityAPI\DomesticViolenceAPI.csproj", "{1740E02F-2EFC-4DDE-A42F-CF1E3A76D4B8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
