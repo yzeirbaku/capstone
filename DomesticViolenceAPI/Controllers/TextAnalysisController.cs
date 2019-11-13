@@ -27,7 +27,7 @@ namespace TextToxicityAPI.Controllers
 
         [HttpGet("welcome")]
         public ViewResult Welcome()
-        {   
+        {
             return View();
         }
 
@@ -40,7 +40,7 @@ namespace TextToxicityAPI.Controllers
         }
 
         [HttpPost]
-        public IActionResult SaveTextAnalysisForUser([FromHeader] string userId, [FromHeader] string timestamp, [FromHeader] string location, [FromBody] string text)
+        public IActionResult SaveTextAnalysisForUser([FromHeader] string userId, [FromHeader] string timestamp, [FromHeader] string date, [FromHeader] string lastKnownLocation, [FromBody] string text)
         {
             TextAnalysis userTextAnalysis = null;
             var textAnalysisResult = textAnalysis(text);
@@ -62,7 +62,8 @@ namespace TextToxicityAPI.Controllers
                         text = text,
                         textAnalysisResult = textAnalysisResult,
                         timestamp = timestamp,
-                        lastKnownLocation = location
+                        date = date,
+                        lastKnownLocation = lastKnownLocation
                     };
                     userTextAnalysis = newUserTextAnalysis;
                     usersTextAnalysis.Insert(newUserTextAnalysis);
@@ -271,6 +272,5 @@ namespace TextToxicityAPI.Controllers
             return returnJson;
         }
         #endregion
-
     }
 }

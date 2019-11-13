@@ -5,6 +5,12 @@ using System.Threading.Tasks;
 
 namespace TextToxicityAPI.Models
 {
+    public class Gender
+    {
+        public string Id { get; set; }
+        public string genderString { get; set; }
+    }
+
     public class TextAnalysisResult
     {
         public string Context { get; set; }
@@ -21,6 +27,9 @@ namespace TextToxicityAPI.Models
         public string age { get; set; }
         public string gender { get; set; }
         public string location { get; set; }
+        public string emergencyContactOne { get; set; }
+        public string emergencyContactTwo { get; set; }
+        public string emergencyContactThree { get; set; }
     }
 
     public class UserTextAnalysis
@@ -52,6 +61,7 @@ namespace TextToxicityAPI.Models
         public string text { get; set; }
         public string textAnalysisResult { get; set; }
         public string timestamp { get; set; }
+        public string date { get; set; }
         public string lastKnownLocation { get; set; }
     }
 }

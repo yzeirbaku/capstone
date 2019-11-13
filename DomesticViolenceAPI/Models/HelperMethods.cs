@@ -50,46 +50,67 @@ namespace TextToxicityAPI.Models
             }
         }
 
-        public void updateUser(string userId, string property)
+        public void updateUser(string userId, User user)
         {
             using (var database = new LiteDatabase("TextAnalysis1.db"))
             {
                 var users = database.GetCollection<User>("User");
                 var userToBeUpdated = users.FindOne(x => x.userId == userId);
-                List<string> propertyNames = new List<string>();
-                List<string> propertyValues = new List<string>();
 
                 if (userToBeUpdated == null)
                 {
                     return;
                 }
 
-                var propertyNamesAndValues = property.Split(",");
-                foreach (var item in propertyNamesAndValues)
-                {
-                    var properties = item.Split(":");
-                    propertyNames.Add(properties[0]);
-                    propertyValues.Add(properties[1]);
-                }
-                foreach (var (item, index) in propertyNames.Select((v, i) => (v, i)))
-                {
-                    if (item.Contains("name"))
+                if (user.name != null)
+
+                    if (userToBeUpdated.name != user.name)
                     {
-                        userToBeUpdated.name = propertyValues[index];
+                        userToBeUpdated.name = user.name;
                     }
-                    if (item.Contains("age"))
+
+                if (user.location != null)
+
+                    if (userToBeUpdated.location != user.location)
                     {
-                        userToBeUpdated.age = propertyValues[index];
+                        userToBeUpdated.location = user.location;
                     }
-                    if (item.Contains("gender"))
+
+                if (user.age != null)
+
+                    if (userToBeUpdated.age != user.age)
                     {
-                        userToBeUpdated.gender = propertyValues[index];
+                        userToBeUpdated.age = user.age;
                     }
-                    if (item.Contains("location"))
+
+                if (user.gender != null)
+
+                    if (userToBeUpdated.gender != user.gender)
                     {
-                        userToBeUpdated.location = propertyValues[index];
+                        userToBeUpdated.gender = user.gender;
                     }
-                }
+
+                if (user.emergencyContactOne != null)
+
+                    if (userToBeUpdated.emergencyContactOne != user.emergencyContactOne)
+                    {
+                        userToBeUpdated.emergencyContactOne = user.emergencyContactOne;
+                    }
+
+                if (user.emergencyContactTwo != null)
+
+                    if (userToBeUpdated.emergencyContactTwo != user.emergencyContactTwo)
+                    {
+                        userToBeUpdated.emergencyContactTwo = user.emergencyContactTwo;
+                    }
+
+                if (user.emergencyContactThree != null)
+
+                    if (userToBeUpdated.emergencyContactThree != user.emergencyContactThree)
+                    {
+                        userToBeUpdated.emergencyContactThree = user.emergencyContactThree;
+                    }
+
                 users.Update(userToBeUpdated);
             }
         }
