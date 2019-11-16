@@ -14,9 +14,11 @@ namespace TextToxicityAPI.Controllers
     [Route("api/user")]
     public class UserController : Controller
     {
-        HelperMethods helperMethods = new HelperMethods();
+        private HelperMethods helperMethods = new HelperMethods();
 
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult GetUser([FromHeader] string userId)
         {
             User user = new User();
@@ -46,6 +48,8 @@ namespace TextToxicityAPI.Controllers
         }
 
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult SaveUser([FromBody] User user)
         {
             using (var database = new LiteDatabase(@"TextAnalysis1.db"))
@@ -78,6 +82,8 @@ namespace TextToxicityAPI.Controllers
         }
 
         [HttpDelete]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult DeleteUser([FromQuery] string userId)
         {
             string nameOfUserToBeDeleted = null;
@@ -100,6 +106,8 @@ namespace TextToxicityAPI.Controllers
         }
 
         [HttpPost("update")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult UpdateUser([FromHeader] string userId, [FromBody] User user)
         {
             using (var database = new LiteDatabase("TextAnalysis1.db"))
@@ -120,7 +128,9 @@ namespace TextToxicityAPI.Controllers
         }
 
         [HttpGet("all")]
-        public IActionResult GetUsers([FromHeader] string userId)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public IActionResult GetUsers()
         {
             IEnumerable<User> allUsers = null;
             List<User> jsonAllUsers = new List<User>();
@@ -130,7 +140,7 @@ namespace TextToxicityAPI.Controllers
                 allUsers = users.Find(x => x.Id != null);
                 if (allUsers.Count() == 0)
                 {
-                    return Ok("There are no users in the database.");
+                    return NotFound("There are no users in the database.");
                 }
                 else
                 {
@@ -145,6 +155,8 @@ namespace TextToxicityAPI.Controllers
         }
 
         [HttpDelete("all")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult DeleteUsers()
         {
             List<User> allUsers = new List<User>();
@@ -154,7 +166,7 @@ namespace TextToxicityAPI.Controllers
                 allUsers = users.Find(x => x.Id != null).ToList();
                 if (allUsers.Count() == 0)
                 {
-                    return Ok("There are no users in the database.");
+                    return NotFound("There are no users in the database.");
                 }
                 else
                 {

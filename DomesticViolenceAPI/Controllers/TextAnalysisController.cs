@@ -22,7 +22,7 @@ namespace TextToxicityAPI.Controllers
     [Route("api/textanalysis")]
     public class TextAnalysisController : Controller
     {
-        HelperMethods helperMethods = new HelperMethods();
+        private HelperMethods helperMethods = new HelperMethods();
         public static string _dataPath = Path.Combine(Environment.CurrentDirectory, "Data", "domestic_violence_dataset.txt");
 
         [HttpGet("welcome")]
@@ -32,6 +32,7 @@ namespace TextToxicityAPI.Controllers
         }
 
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public IActionResult GetTextAnalysis([FromBody] string text)
         {
             var textAnalysisResult = textAnalysis(text);
@@ -40,6 +41,8 @@ namespace TextToxicityAPI.Controllers
         }
 
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult SaveTextAnalysisForUser([FromHeader] string userId, [FromHeader] string timestamp, [FromHeader] string date, [FromHeader] string lastKnownLocation, [FromBody] string text)
         {
             TextAnalysis userTextAnalysis = null;
@@ -73,6 +76,8 @@ namespace TextToxicityAPI.Controllers
         }
 
         [HttpDelete]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult DeleteAllTextAnalyses()
         {
             using (var database = new LiteDatabase(@"TextAnalysis1.db"))
@@ -95,6 +100,8 @@ namespace TextToxicityAPI.Controllers
         }
 
         [HttpGet("user")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult GetTextAnalysisForUser([FromHeader] string userId)
         {
             List<TextAnalysis> infoTextAnalyses = new List<TextAnalysis>();
@@ -127,6 +134,73 @@ namespace TextToxicityAPI.Controllers
                                 text = item.text,
                                 textAnalysisResult = item.textAnalysisResult,
                                 timestamp = item.timestamp,
+                                date = item.date,
+                                lastKnownLocation = item.lastKnownLocation
+                            };
+                            textAnalysesInfo.Add(textAnalysisInfo);
+                        }
+
+                        UserInfo userInfo = new UserInfo
+                        {
+                            userId = userId,
+                            name = user.name,
+                            age = user.age,
+                            gender = helperMethods.getGender(user.gender)
+                        };
+
+                        UserTextAnalysis userTextAnalysis = new UserTextAnalysis
+                        {
+                            userInfo = userInfo,
+                            textAnalysesInfo = textAnalysesInfo
+                        };
+                        userTextAnalysisJson = userTextAnalysis;
+                    }
+                }
+            }
+            return Ok(userTextAnalysisJson);
+        }
+
+        [HttpGet("user/date")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public IActionResult GetTextAnalysisForUserWithDate([FromHeader] string userId, [FromHeader] string date)
+        {
+            List<TextAnalysis> infoTextAnalyses = new List<TextAnalysis>();
+            List<TextAnalysisInfo> textAnalysesInfo = new List<TextAnalysisInfo>();
+            UserTextAnalysis userTextAnalysisJson = new UserTextAnalysis();
+
+            using (var database = new LiteDatabase(@"TextAnalysis1.db"))
+            {
+                var usersTextAnalysis = database.GetCollection<TextAnalysis>("UserTextAnalysis");
+                var allUsers = database.GetCollection<User>("User");
+                var user = allUsers.FindOne(x => x.userId == userId);
+                if (user == null)
+                {
+                    return NotFound("The user with id " + userId + " could not be found!");
+                }
+                else
+                {
+                    var allTextAnalysisForUser = usersTextAnalysis.Find(x => x.userId == userId);
+                    var allTextAnalysisForUserWithDate = allTextAnalysisForUser.Where(x => x.date == date);
+                    if (allTextAnalysisForUser.Count() == 0)
+                    {
+                        return NotFound("The user with id " + userId + " has no text analysis saved.");
+                    }
+                    else if (allTextAnalysisForUserWithDate.Count() == 0)
+                    {
+                        return NotFound("The user with id " + userId + " has no text analysis saved for this date.");
+                    }
+                    else
+                    {
+                        infoTextAnalyses = allTextAnalysisForUserWithDate.ToList();
+                        foreach (var item in infoTextAnalyses)
+                        {
+                            TextAnalysisInfo textAnalysisInfo = new TextAnalysisInfo
+                            {
+                                text = item.text,
+                                textAnalysisResult = item.textAnalysisResult,
+                                timestamp = item.timestamp,
+                                date = item.date,
                                 lastKnownLocation = item.lastKnownLocation
                             };
                             textAnalysesInfo.Add(textAnalysisInfo);
@@ -153,6 +227,9 @@ namespace TextToxicityAPI.Controllers
         }
 
         [HttpDelete("user")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult DeleteAllTextAnalysesForUser([FromQuery] string userId)
         {
             using (var database = new LiteDatabase(@"TextAnalysis1.db"))

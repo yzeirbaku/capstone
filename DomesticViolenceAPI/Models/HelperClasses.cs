@@ -51,6 +51,7 @@ namespace TextToxicityAPI.Models
         public string text { get; set; }
         public string textAnalysisResult { get; set; }
         public string timestamp { get; set; }
+        public string date { get; set; }
         public string lastKnownLocation { get; set; }
     }
 
