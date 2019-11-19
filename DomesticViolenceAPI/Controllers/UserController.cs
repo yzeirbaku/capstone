@@ -14,7 +14,7 @@ namespace TextToxicityAPI.Controllers
     [Route("api/user")]
     public class UserController : Controller
     {
-        private HelperMethods helperMethods = new HelperMethods();
+        private  HelperMethods helperMethods = new HelperMethods();
 
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]

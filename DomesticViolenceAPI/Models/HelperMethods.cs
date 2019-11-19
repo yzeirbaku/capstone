@@ -1,4 +1,5 @@
 ﻿using LiteDB;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -136,6 +137,64 @@ namespace TextToxicityAPI.Models
             }
             return count;
         }
+
+        public UserTextAnalysis getUserTextAnalysis(List<TextAnalysis> list, string userId)
+        {
+            List<TextAnalysisInfo> textAnalysesInfo = new List<TextAnalysisInfo>();
+            UserTextAnalysis userTextAnalysisJson = new UserTextAnalysis();
+
+            using (var database = new LiteDatabase(@"TextAnalysis1.db"))
+            {
+                var usersTextAnalysis = database.GetCollection<TextAnalysis>("UserTextAnalysis");
+                var allUsers = database.GetCollection<User>("User");
+                var user = allUsers.FindOne(x => x.userId == userId);
+
+                if (user == null)
+                {
+                    return null;
+                }
+                else
+                {
+                    foreach (var item in list)
+                    {
+                        var textAnalysisResultJson = JsonConvert.DeserializeObject<TextAnalysisResult>(item.textAnalysisResult);
+
+                        TextAnalysisResult textAnalysisResult = new TextAnalysisResult
+                        {
+                            Context = textAnalysisResultJson.Context,
+                            CurseCount = textAnalysisResultJson.CurseCount,
+                            CurseRatio = textAnalysisResultJson.CurseRatio,
+                            GoodContextProbability = textAnalysisResultJson.GoodContextProbability
+                        };
+
+                        TextAnalysisInfo textAnalysisInfo = new TextAnalysisInfo
+                        {
+                            text = item.text,
+                            textAnalysisResult = textAnalysisResult,
+                            timestamp = item.timestamp,
+                            date = item.date,
+                            lastKnownLocation = item.lastKnownLocation
+                        };
+                        textAnalysesInfo.Add(textAnalysisInfo);
+                    }
+
+                    UserInfo userInfo = new UserInfo
+                    {
+                        userId = userId,
+                        name = user.name,
+                        age = user.age,
+                        gender = getGender(user.gender)
+                    };
+
+                    UserTextAnalysis userTextAnalysis = new UserTextAnalysis
+                    {
+                        userInfo = userInfo,
+                        textAnalysesInfo = textAnalysesInfo
+                    };
+                    userTextAnalysisJson = userTextAnalysis;
+                }
+            }
+            return userTextAnalysisJson;
+        }
     }
 }
-

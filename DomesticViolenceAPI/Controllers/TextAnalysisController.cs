@@ -105,9 +105,7 @@ namespace TextToxicityAPI.Controllers
         public IActionResult GetTextAnalysisForUser([FromHeader] string userId)
         {
             List<TextAnalysis> infoTextAnalyses = new List<TextAnalysis>();
-            List<TextAnalysisInfo> textAnalysesInfo = new List<TextAnalysisInfo>();
             UserTextAnalysis userTextAnalysisJson = new UserTextAnalysis();
-
             using (var database = new LiteDatabase(@"TextAnalysis1.db"))
             {
                 var usersTextAnalysis = database.GetCollection<TextAnalysis>("UserTextAnalysis");
@@ -127,99 +125,7 @@ namespace TextToxicityAPI.Controllers
                     else
                     {
                         infoTextAnalyses = textAnalysisToBeFound.ToList();
-                        foreach (var item in infoTextAnalyses)
-                        {
-                            TextAnalysisInfo textAnalysisInfo = new TextAnalysisInfo
-                            {
-                                text = item.text,
-                                textAnalysisResult = item.textAnalysisResult,
-                                timestamp = item.timestamp,
-                                date = item.date,
-                                lastKnownLocation = item.lastKnownLocation
-                            };
-                            textAnalysesInfo.Add(textAnalysisInfo);
-                        }
-
-                        UserInfo userInfo = new UserInfo
-                        {
-                            userId = userId,
-                            name = user.name,
-                            age = user.age,
-                            gender = helperMethods.getGender(user.gender)
-                        };
-
-                        UserTextAnalysis userTextAnalysis = new UserTextAnalysis
-                        {
-                            userInfo = userInfo,
-                            textAnalysesInfo = textAnalysesInfo
-                        };
-                        userTextAnalysisJson = userTextAnalysis;
-                    }
-                }
-            }
-            return Ok(userTextAnalysisJson);
-        }
-
-        [HttpGet("user/date")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult GetTextAnalysisForUserWithDate([FromHeader] string userId, [FromHeader] string date)
-        {
-            List<TextAnalysis> infoTextAnalyses = new List<TextAnalysis>();
-            List<TextAnalysisInfo> textAnalysesInfo = new List<TextAnalysisInfo>();
-            UserTextAnalysis userTextAnalysisJson = new UserTextAnalysis();
-
-            using (var database = new LiteDatabase(@"TextAnalysis1.db"))
-            {
-                var usersTextAnalysis = database.GetCollection<TextAnalysis>("UserTextAnalysis");
-                var allUsers = database.GetCollection<User>("User");
-                var user = allUsers.FindOne(x => x.userId == userId);
-                if (user == null)
-                {
-                    return NotFound("The user with id " + userId + " could not be found!");
-                }
-                else
-                {
-                    var allTextAnalysisForUser = usersTextAnalysis.Find(x => x.userId == userId);
-                    var allTextAnalysisForUserWithDate = allTextAnalysisForUser.Where(x => x.date == date);
-                    if (allTextAnalysisForUser.Count() == 0)
-                    {
-                        return NotFound("The user with id " + userId + " has no text analysis saved.");
-                    }
-                    else if (allTextAnalysisForUserWithDate.Count() == 0)
-                    {
-                        return NotFound("The user with id " + userId + " has no text analysis saved for this date.");
-                    }
-                    else
-                    {
-                        infoTextAnalyses = allTextAnalysisForUserWithDate.ToList();
-                        foreach (var item in infoTextAnalyses)
-                        {
-                            TextAnalysisInfo textAnalysisInfo = new TextAnalysisInfo
-                            {
-                                text = item.text,
-                                textAnalysisResult = item.textAnalysisResult,
-                                timestamp = item.timestamp,
-                                date = item.date,
-                                lastKnownLocation = item.lastKnownLocation
-                            };
-                            textAnalysesInfo.Add(textAnalysisInfo);
-                        }
-
-                        UserInfo userInfo = new UserInfo
-                        {
-                            userId = userId,
-                            name = user.name,
-                            age = user.age,
-                            gender = helperMethods.getGender(user.gender)
-                        };
-
-                        UserTextAnalysis userTextAnalysis = new UserTextAnalysis
-                        {
-                            userInfo = userInfo,
-                            textAnalysesInfo = textAnalysesInfo
-                        };
-                        userTextAnalysisJson = userTextAnalysis;
+                        userTextAnalysisJson = helperMethods.getUserTextAnalysis(infoTextAnalyses, userId);
                     }
                 }
             }
@@ -265,6 +171,130 @@ namespace TextToxicityAPI.Controllers
                     }
                 }
             }
+        }
+
+        [HttpGet("user/date")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public IActionResult GetTextAnalysisForUserWithDate([FromHeader] string userId, [FromHeader] string date)
+        {
+            List<TextAnalysis> infoTextAnalyses = new List<TextAnalysis>();
+            UserTextAnalysis userTextAnalysisJson = new UserTextAnalysis();
+
+            using (var database = new LiteDatabase(@"TextAnalysis1.db"))
+            {
+                var usersTextAnalysis = database.GetCollection<TextAnalysis>("UserTextAnalysis");
+                var allUsers = database.GetCollection<User>("User");
+                var user = allUsers.FindOne(x => x.userId == userId);
+                if (user == null)
+                {
+                    return NotFound("The user with id " + userId + " could not be found!");
+                }
+                else
+                {
+                    var allTextAnalysisForUser = usersTextAnalysis.Find(x => x.userId == userId);
+                    var allTextAnalysisForUserWithDate = allTextAnalysisForUser.Where(x => x.date == date);
+                    if (allTextAnalysisForUser.Count() == 0)
+                    {
+                        return NotFound("The user with id " + userId + " has no text analysis saved.");
+                    }
+                    else if (allTextAnalysisForUserWithDate.Count() == 0)
+                    {
+                        return NotFound("The user with id " + userId + " has no text analysis saved for this date.");
+                    }
+                    else
+                    {
+                        infoTextAnalyses = allTextAnalysisForUserWithDate.ToList();
+                        userTextAnalysisJson = helperMethods.getUserTextAnalysis(infoTextAnalyses, userId);
+                    }
+                }
+            }
+            return Ok(userTextAnalysisJson);
+        }
+
+        [HttpGet("user/negative")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public IActionResult GetNegativeTextAnalysisForUser([FromHeader] string userId, [FromHeader] string date)
+        {
+            List<TextAnalysis> infoTextAnalyses = new List<TextAnalysis>();
+            List<TextAnalysisResult> textAnalysisResults = new List<TextAnalysisResult>();
+            UserTextAnalysis userTextAnalysisJson = new UserTextAnalysis();
+
+            using (var database = new LiteDatabase(@"TextAnalysis1.db"))
+            {
+                var usersTextAnalysis = database.GetCollection<TextAnalysis>("UserTextAnalysis");
+                var allUsers = database.GetCollection<User>("User");
+                var user = allUsers.FindOne(x => x.userId == userId);
+                if (user == null)
+                {
+                    return NotFound("The user with id " + userId + " could not be found!");
+                }
+                else
+                {
+                    if (date != null)
+                    {
+                        var allTextAnalysisForUser = usersTextAnalysis.Find(x => x.userId == userId);
+                        var allTextAnalysisForUserWithDate = allTextAnalysisForUser.Where(x => x.date == date).ToList();
+
+                        foreach (var item in allTextAnalysisForUserWithDate)
+                        {
+                            var textAnalysisResultJson = JsonConvert.DeserializeObject<TextAnalysisResult>(item.textAnalysisResult);
+                            textAnalysisResults.Add(textAnalysisResultJson);
+                        }
+
+                        var negativeTextAnalysisResults = textAnalysisResults.Where(x => x.Context == "Negative").ToList();
+
+                        foreach (var item in negativeTextAnalysisResults)
+                        {
+                            var negativeList = allTextAnalysisForUserWithDate.Where(x => x.textAnalysisResult == JsonConvert.SerializeObject(item)).ToList();
+                            infoTextAnalyses.Add(negativeList.FirstOrDefault());
+                        }
+
+                        if (allTextAnalysisForUser.Count() == 0)
+                        {
+                            return NotFound("The user with id " + userId + " has no text analysis saved.");
+                        }
+                        else if (allTextAnalysisForUserWithDate.Count() == 0)
+                        {
+                            return NotFound("The user with id " + userId + " has no text analysis saved for this date.");
+                        }
+                        else
+                        {
+                            userTextAnalysisJson = helperMethods.getUserTextAnalysis(infoTextAnalyses, userId);
+                        }
+                    }
+
+                    else
+                    {
+                        var allTextAnalysisForUser = usersTextAnalysis.Find(x => x.userId == userId);
+
+                        foreach (var item in allTextAnalysisForUser)
+                        {
+                            var textAnalysisResultJson = JsonConvert.DeserializeObject<TextAnalysisResult>(item.textAnalysisResult);
+                            textAnalysisResults.Add(textAnalysisResultJson);
+                        }
+
+                        var negativeTextAnalysisResults = textAnalysisResults.Where(x => x.Context == "Negative").ToList();
+
+                        foreach (var item in negativeTextAnalysisResults)
+                        {
+                            var negativeList = allTextAnalysisForUser.Where(x => x.textAnalysisResult == JsonConvert.SerializeObject(item)).ToList();
+                            infoTextAnalyses.Add(negativeList.FirstOrDefault());
+                        }
+
+                        if (allTextAnalysisForUser.Count() == 0)
+                        {
+                            return NotFound("The user with id " + userId + " has no text analysis saved.");
+                        }
+                        else
+                        {
+                            userTextAnalysisJson = helperMethods.getUserTextAnalysis(infoTextAnalyses, userId);
+                        }
+                    }
+                }
+            }
+            return Ok(userTextAnalysisJson);
         }
 
         #region ML

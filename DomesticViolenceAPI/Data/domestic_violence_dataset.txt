@@ -97,3 +97,7 @@ Put your phone down and don't try to call anyone or I will shoot you.	0
 My mother went to the hospital today, I need to go and see her.	1
 We have a work dinner tonight, I hope it is not anything important.	1
 I hope my presentation goes well today.	1
+I love you honey.	1
+I will kill you bitch.	0
+I can make you feel better, talk to me.	1
+Thank you.	1
