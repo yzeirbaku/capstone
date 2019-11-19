@@ -15,6 +15,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using LiteDB;
 using TextToxicityAPI.Models;
+using System.Globalization;
 
 namespace TextToxicityAPI.Controllers
 {
@@ -176,10 +177,11 @@ namespace TextToxicityAPI.Controllers
         [HttpGet("user/date")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult GetTextAnalysisForUserWithDate([FromHeader] string userId, [FromHeader] string date)
+        public IActionResult GetTextAnalysisForUserWithDate([FromHeader] string userId, [FromHeader] string date, [FromHeader] string startingTime, [FromHeader] string endingTime)
         {
             List<TextAnalysis> infoTextAnalyses = new List<TextAnalysis>();
             UserTextAnalysis userTextAnalysisJson = new UserTextAnalysis();
+            List<string> textAnalysesTimestampsWithinRange = new List<string>();
 
             using (var database = new LiteDatabase(@"TextAnalysis1.db"))
             {
@@ -192,24 +194,88 @@ namespace TextToxicityAPI.Controllers
                 }
                 else
                 {
-                    var allTextAnalysisForUser = usersTextAnalysis.Find(x => x.userId == userId);
-                    var allTextAnalysisForUserWithDate = allTextAnalysisForUser.Where(x => x.date == date);
-                    if (allTextAnalysisForUser.Count() == 0)
+                    if (startingTime != null && endingTime != null)
                     {
-                        return NotFound("The user with id " + userId + " has no text analysis saved.");
+                        var dateAndStartTime = date + " " + startingTime;
+                        var startTime = DateTime.ParseExact(dateAndStartTime, "dd-MM-yyyy HH:mm:ss", CultureInfo.InvariantCulture);
+                        var dateAndEndTime = date + " " + endingTime;
+                        var endTime = DateTime.ParseExact(dateAndEndTime, "dd-MM-yyyy HH:mm:ss", CultureInfo.InvariantCulture);
+
+                        var startTimeToParse = startTime.Hour.ToString() + ":" + startTime.Minute + ":" + startTime.Second;
+                        var endTimeToParse = endTime.Hour.ToString() + ":" + endTime.Minute + ":" + endTime.Second;
+                        TimeSpan startingTimeSpan = TimeSpan.Parse(startTimeToParse);
+                        TimeSpan endingTimeSpan = TimeSpan.Parse(endTimeToParse);
+
+                        var allTextAnalysisForUser = usersTextAnalysis.Find(x => x.userId == userId);
+                        var allTextAnalysisForUserWithDate = allTextAnalysisForUser.Where(x => x.date == date);
+                        if (allTextAnalysisForUser.Count() == 0)
+                        {
+                            return NotFound("The user with id " + userId + " has no text analysis saved.");
+                        }
+                        else if (allTextAnalysisForUserWithDate.Count() == 0)
+                        {
+                            return NotFound("The user with id " + userId + " has no text analysis saved for this date.");
+                        }
+                        else
+                        {
+                            foreach (var item in allTextAnalysisForUserWithDate)
+                            {
+                                var userTextAnalysisTimestamp = item.timestamp;
+                                DateTime userTextAnalysisDateTime = DateTime.Parse(userTextAnalysisTimestamp);
+                                var userTextAnalysisDateTimeToParse = userTextAnalysisDateTime.Hour.ToString() + ":" + userTextAnalysisDateTime.Minute + ":" + userTextAnalysisDateTime.Second;
+                                TimeSpan userTextAnalysisTimeSpan = TimeSpan.Parse(userTextAnalysisDateTimeToParse);
+
+                                if (startingTimeSpan <= endingTimeSpan)
+                                {
+                                    // start and stop times are in the same day
+                                    if (userTextAnalysisTimeSpan >= startingTimeSpan && userTextAnalysisTimeSpan <= endingTimeSpan)
+                                    {
+                                        textAnalysesTimestampsWithinRange.Add(userTextAnalysisTimeSpan.ToString());
+                                    }
+                                }
+                                else
+                                {
+                                    // start and stop times are in different days
+                                    if (userTextAnalysisTimeSpan >= startingTimeSpan || userTextAnalysisTimeSpan <= endingTimeSpan)
+                                    {
+                                        textAnalysesTimestampsWithinRange.Add(userTextAnalysisTimeSpan.ToString());
+                                    }
+                                }
+                            }
+
+                            foreach (var item in textAnalysesTimestampsWithinRange)
+                            {
+                                var userTextAnalysesWithinTimeRange = allTextAnalysisForUserWithDate.Where(x => x.timestamp == item).ToList();
+                                infoTextAnalyses.Add(userTextAnalysesWithinTimeRange.FirstOrDefault());
+                            }
+
+                            userTextAnalysisJson = helperMethods.getUserTextAnalysis(infoTextAnalyses, userId);
+
+                            return Ok(userTextAnalysisJson);
+                        }
                     }
-                    else if (allTextAnalysisForUserWithDate.Count() == 0)
-                    {
-                        return NotFound("The user with id " + userId + " has no text analysis saved for this date.");
-                    }
+
                     else
                     {
-                        infoTextAnalyses = allTextAnalysisForUserWithDate.ToList();
-                        userTextAnalysisJson = helperMethods.getUserTextAnalysis(infoTextAnalyses, userId);
+                        var allTextAnalysisForUser = usersTextAnalysis.Find(x => x.userId == userId);
+                        var allTextAnalysisForUserWithDate = allTextAnalysisForUser.Where(x => x.date == date);
+                        if (allTextAnalysisForUser.Count() == 0)
+                        {
+                            return NotFound("The user with id " + userId + " has no text analysis saved.");
+                        }
+                        else if (allTextAnalysisForUserWithDate.Count() == 0)
+                        {
+                            return NotFound("The user with id " + userId + " has no text analysis saved for this date.");
+                        }
+                        else
+                        {
+                            infoTextAnalyses = allTextAnalysisForUserWithDate.ToList();
+                            userTextAnalysisJson = helperMethods.getUserTextAnalysis(infoTextAnalyses, userId);
+                        }
                     }
                 }
+                return Ok(userTextAnalysisJson);
             }
-            return Ok(userTextAnalysisJson);
         }
 
         [HttpGet("user/negative")]
