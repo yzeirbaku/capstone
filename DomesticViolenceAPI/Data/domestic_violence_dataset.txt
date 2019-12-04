@@ -43,6 +43,8 @@ You look beautiful in that dress babe.	1
 I will shoot you right in the face.	0
 I am okay with spending the rest of my life in prison.	0
 I am okay with going to prison.	0
+I am okay.	1
+I'm okay.	1
 Don't do this for the love of God.	0
 Don't make me do this, I don't want to hurt you.	0
 You look stressed, is everything fine love?	1
