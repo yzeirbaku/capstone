@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.27703.2042
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DomesticViolenceAPI", "DomesticViolenceAPI\DomesticViolenceAPI.csproj", "{1740E02F-2EFC-4DDE-A42F-CF1E3A76D4B8}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DomesticViolenceWebApp", "WebApplication1\DomesticViolenceWebApp.csproj", "{C37C39D2-2B4E-4B37-8580-D8F7E9C2DEC9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{1740E02F-2EFC-4DDE-A42F-CF1E3A76D4B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1740E02F-2EFC-4DDE-A42F-CF1E3A76D4B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1740E02F-2EFC-4DDE-A42F-CF1E3A76D4B8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C37C39D2-2B4E-4B37-8580-D8F7E9C2DEC9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C37C39D2-2B4E-4B37-8580-D8F7E9C2DEC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C37C39D2-2B4E-4B37-8580-D8F7E9C2DEC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C37C39D2-2B4E-4B37-8580-D8F7E9C2DEC9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

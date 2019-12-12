@@ -26,6 +26,16 @@ namespace TextToxicityAPI
         {
             services.AddMvc();
 
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll",
+                    p => p.AllowAnyOrigin().
+                        AllowAnyHeader().
+                        AllowAnyMethod().
+                        AllowCredentials()
+                        );
+            });
+
             // Register the Swagger generator
             services.AddSwaggerGen(c =>
             {
@@ -53,6 +63,8 @@ namespace TextToxicityAPI
             });
 
             app.UseMvc();
+
+            app.UseCors("AllowAll");
         }
     }
 }

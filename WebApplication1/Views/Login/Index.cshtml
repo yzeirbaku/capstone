@@ -1,0 +1,159 @@
+﻿@model DomesticViolenceWebApp.Models.Admin
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width-device-width" />
+    <title>Club Login</title>
+    <style>
+        #login-div {
+            align-content: center;
+            position: center;
+            left: 10%;
+            right: 20%;
+            border: 1px solid #ccc;
+            padding: 60px 380px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            height: 500px;
+            background-color: #FDF5FC;
+        }
+
+        #textbox {
+            border-radius: 5px;
+            height: 32px;
+            position: relative;
+            border: 2px solid #cdcdcd;
+            border-color: rgba(0, 0, 0, .14);
+            background-color: AliceBlue;
+            font-size: 14px;
+        }
+
+        .button {
+            background-color: #4CAF50; /* Green */
+            border: none;
+            color: white;
+            padding: 4px 67px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            border-radius: 6px;
+            margin: 4px 2px;
+            -webkit-transition-duration: 0.4s; /* Safari */
+            transition-duration: 0.4s;
+            cursor: pointer;
+        }
+
+        .button2 {
+            background-color: white;
+            color: black;
+            border: 2px solid #008CBA;
+        }
+
+            .button2:hover {
+                background-color: #008CBA;
+                color: white;
+            }
+    </style>
+</head>
+<body>
+
+    <div id="login-div">
+        @using (Html.BeginForm("Authorize", "Login", FormMethod.Post))
+        {
+        <table>
+            <tr>
+                <br />
+                <br />
+                <td colspan="2" style="font-weight:600; font-size:280%; text-align:center">&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp Admin Login</td>
+            </tr>
+            <tr>
+                <td><br /></td>
+                <td><br /></td>
+            </tr>
+            <tr>
+                <td>
+                    <br />
+                </td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>
+                    <b style="font-size:17px;">Mail</b>
+                    <br />
+                </td>
+                <td>
+                    &nbsp&nbsp&nbsp
+                    @Html.EditorFor(model => model.Mail,
+                    new { htmlAttributes = new { @id = "textbox" } })
+                    <br />
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>
+                    <b style="font-size:17px">Password</b>
+                    <br />
+                </td>
+                <td>
+                    &nbsp&nbsp&nbsp
+                    @Html.EditorFor(model => model.Password,
+                    new { htmlAttributes = new { @id = "textbox" } })
+                    <br />
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td style="color:red">
+                    &nbsp&nbsp&nbsp
+                    @Html.DisplayFor(x => x.loginError)
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>
+                    &nbsp&nbsp&nbsp
+                    <button type="submit" name="name" class="button button2">Login</button>
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>
+                    &nbsp&nbsp&nbsp
+                    <button type="reset" name="name" value="Clear" class="button button2">Clear</button>
+                </td>
+            </tr>
+        </table>
+        }
+
+    </div>
+    <script src="~/Scripts/jquery-3.3.1.min.js"></script>
+    <script src="~/Scripts/jquery.validate.min.js"></script>
+    <script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+
+</body>
+</html>
+
+
+
