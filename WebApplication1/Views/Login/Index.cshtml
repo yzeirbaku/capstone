@@ -22,15 +22,16 @@
             margin-top: 20px;
             margin-bottom: 20px;
             height: 500px;
-            background-color: #FDF5FC;
+            background-color: #FFFCFC;
+            border: 3px double #0F6B8D;
         }
 
         #textbox {
             border-radius: 5px;
-            height: 32px;
+            height: 34px;
             position: relative;
-            border: 2px solid #cdcdcd;
-            border-color: rgba(0, 0, 0, .14);
+            border: 1px solid #cdcdcd;
+            border-color: #008CBA;
             background-color: AliceBlue;
             font-size: 14px;
         }
@@ -53,13 +54,19 @@
         .button2 {
             background-color: white;
             color: black;
-            border: 2px solid #008CBA;
+            border: 2px solid #9DCCDE;
         }
 
             .button2:hover {
-                background-color: #008CBA;
+                background-color: #52B0D2;
                 color: white;
             }
+
+        table {
+            border-collapse: separate;
+            border-spacing: 0 2px;
+        }
+
     </style>
 </head>
 <body>
@@ -141,16 +148,13 @@
                 <td></td>
                 <td>
                     &nbsp&nbsp&nbsp
-                    <button type="reset" name="name" value="Clear" class="button button2">Clear</button>
+                    <button type="reset" name="name" value="Clear" class="button button2" style="margin-top:-4px">Clear</button>
                 </td>
             </tr>
         </table>
         }
 
     </div>
-    <script src="~/Scripts/jquery-3.3.1.min.js"></script>
-    <script src="~/Scripts/jquery.validate.min.js"></script>
-    <script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
 
 </body>
 </html>

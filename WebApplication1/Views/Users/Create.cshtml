@@ -1,0 +1,135 @@
+﻿@model DomesticViolenceWebApp.Models.User
+
+@{
+    ViewBag.Title = "Create";
+}
+
+<style>
+    .button {
+        background-color: #4CAF50;
+        border: none;
+        color: white;
+        padding: 4px 30px;
+        text-align: right;
+        text-decoration: none;
+        display: inline;
+        border-radius: 6px;
+        margin: 4px 2px;
+        -webkit-transition-duration: 0.4s; /* Safari */
+        transition-duration: 0.4s;
+        cursor: pointer;
+    }
+
+    .button2 {
+        background-color: white;
+        color: black;
+        border: 2px solid #9DCCDE;
+    }
+
+        .button2:hover {
+            background-color: #52B0D2;
+            color: white;
+        }
+</style>
+
+<h2>Create</h2>
+
+@Html.Raw(TempData["msg"])
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal" style="width: 100%; float:left; margin-right:50px">
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+        <div class="form-group">
+            @Html.Label("User Id", "User Id", htmlAttributes: new { @class = "control-label col-md-1" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.userId, new { htmlAttributes = new { @class = "form-control", @style = "width:500px" } })
+                @Html.ValidationMessageFor(model => model.userId, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.Label("Name", "Name", htmlAttributes: new { @class = "control-label col-md-1" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.name, new { htmlAttributes = new { @class = "form-control", @style = "width:500px" } })
+                @Html.ValidationMessageFor(model => model.name, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.Label("Age", "Age", htmlAttributes: new { @class = "control-label col-md-1" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.age, new { htmlAttributes = new { @class = "form-control", @style = "width:500px" } })
+                @Html.ValidationMessageFor(model => model.age, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.Label("Gender", "Gender", htmlAttributes: new { @class = "control-label col-md-1" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.gender, new { htmlAttributes = new { @class = "form-control", @style = "width:500px" } })
+                @Html.ValidationMessageFor(model => model.gender, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.Label("Location", "Location", htmlAttributes: new { @class = "control-label col-md-1" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.location, new { htmlAttributes = new { @class = "form-control", @style = "width:500px" } })
+                @Html.ValidationMessageFor(model => model.location, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.Label("Contact1#", "Contact1#", htmlAttributes: new { @class = "control-label col-md-1" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.emergencyContactOne, new { htmlAttributes = new { @class = "form-control", @style = "width:500px" } })
+                @Html.ValidationMessageFor(model => model.emergencyContactOne, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.Label("Contact2#", "Contact2#", htmlAttributes: new { @class = "control-label col-md-1" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.emergencyContactTwo, new { htmlAttributes = new { @class = "form-control", @style = "width:500px" } })
+                @Html.ValidationMessageFor(model => model.emergencyContactTwo, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.Label("Contact3#", "Contact3#", htmlAttributes: new { @class = "control-label col-md-1" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.emergencyContactThree, new { htmlAttributes = new { @class = "form-control", @style = "width:500px" } })
+                @Html.ValidationMessageFor(model => model.emergencyContactThree, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group" style="float:left; margin-left:70px">
+            <div class="col-md-offset-1 col-md-10">
+                <input type="submit" value="Create" class="button button2" />
+            </div>
+        </div>
+
+        <div class="form-group" style="float:left; margin-left:2px; margin-right:800px">
+            <div class="col-md-offset-1 col-md-10">
+                <input type="button" onclick="goBack()" value="Cancel" class="button button2" style="padding: 4px 26px;" />
+            </div>
+        </div>
+    </div>
+
+    <div style="text-align:right; margin-top:-450px; width: 100%; float:left; margin-left:-10px">
+        <img src="http://simpleicon.com/wp-content/uploads/add-user.png" alt="user" width="405" height="435" />
+    </div>
+}
+
+
+<script>
+    function goBack() {
+        window.history.back();
+    }
+</script>
+

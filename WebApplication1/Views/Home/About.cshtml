@@ -1,7 +1,29 @@
 ﻿@{
     ViewData["Title"] = "About";
 }
-<h2>@ViewData["Title"]</h2>
-<h3>@ViewData["Message"]</h3>
 
-<p>Use this area to provide additional information.</p>
+<style>
+    body {
+        background-color: #FFFCFC;
+    }
+</style>
+
+<body>
+
+    <h2>@ViewData["Title"]</h2>
+    <hr />
+    <h3>Domestic Violence API</h3>
+
+    <p>
+        Domestic Violence API is developed in ASP.NET Core and uses Machine Learning to determine
+        how much violence is present in a given text with the aim of detecting domestic violence cases.
+        This API consists of two types of endpoints - text analysis and user. The user endpoints are meant as a backend 
+        for future app development. In order to gain access to these endpoints please <a href="http://domesticviolence.azurewebsites.net/Home/Contact">contact us</a>.
+        <br />
+        To check the API documentation go to the Swagger section of this application or click <a href="http://domesticviolenceapi.azurewebsites.net/swagger/index.html" target="_blank">here</a>.
+        <br />
+        To check the Github link click <a href="https://github.com/yzeirbaku/Capstone" target="_blank">here</a>.
+
+    </p>
+
+</body>

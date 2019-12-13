@@ -1,0 +1,87 @@
+﻿@model IEnumerable<DomesticViolenceWebApp.Models.User>
+
+@{
+    ViewBag.Title = "Users";
+}
+
+<h2>Users</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<p>
+    @Html.ActionLink("Log Out", "LogOut")
+</p>
+<table class="table">
+    <tr>
+        <th>
+            User Id
+        </th>
+        <th>
+            Name
+        </th>
+        <th>
+            Age
+        </th>
+        <th>
+            Gender
+        </th>
+        <th>
+            Location
+        </th>
+        <th>
+            Emergency Contact1#
+        </th>
+        <th>
+            Emergency Contact2#
+        </th>
+        <th>
+            Emergency Contact3#
+        </th>
+        <th>
+            Actions
+        </th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.userId)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.name)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.age)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.gender)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.location)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.emergencyContactOne)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.emergencyContactTwo)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.emergencyContactThree)
+        </td>
+        <td style="text-align:left">
+            <a href="@Url.Action("Edit","Users", new { userId = item.userId })">
+                <img src="https://cdn2.iconfinder.com/data/icons/flat-ui-icons-24-px/24/new-24-512.png" alt="edit" height="20" width="20"/>
+            </a> |
+            <a href="@Url.Action("Details","Users", new { userId = item.userId })">
+                <img src="https://cdn1.iconfinder.com/data/icons/education-set-4/512/information-2-512.png" alt="details" height="20" width="20"/>
+            </a> |
+            <a href="@Url.Action("Delete","Users", new { userId = item.userId })">
+                <img src="https://icon-library.net/images/delete-icon-transparent-background/delete-icon-transparent-background-2.jpg" alt="delete" height="20" width="20"/>
+            </a>
+
+        </td>
+    </tr>
+}
+
+</table>

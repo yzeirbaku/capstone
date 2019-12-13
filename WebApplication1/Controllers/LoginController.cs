@@ -11,6 +11,21 @@ namespace DomesticViolenceWebApp.Controllers
         [Route("login")]
         public IActionResult Index()
         {
+            using (var database = new LiteDatabase(@"Admins.db"))
+            {
+                var admins = database.GetCollection<Admin>("Admin");
+                var admin = admins.FindOne(x => x.Mail == "admin" && x.Password == "1234");
+                if (admin == null)
+                {
+                    var newAdmin = new Admin
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        Mail = "admin",
+                        Password = "1234"
+                    };
+                    admins.Insert(newAdmin);
+                }
+            }
             return View();
         }
 
@@ -32,7 +47,7 @@ namespace DomesticViolenceWebApp.Controllers
                 {
                     if (ModelState.IsValid)
                     {
-                        return Redirect("http://domesticviolenceapi.azurewebsites.net/swagger");
+                        return RedirectToAction("Index", "Users");
                     }
                     else
                     {
@@ -48,6 +63,7 @@ namespace DomesticViolenceWebApp.Controllers
 
         public ActionResult LogOut()
         {
+            HttpContext.Session.Clear();
             return RedirectToAction("Index", "Home");
         }
     }
