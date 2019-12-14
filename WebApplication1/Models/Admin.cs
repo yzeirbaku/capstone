@@ -8,6 +8,16 @@ namespace DomesticViolenceWebApp.Models
 {
     public class Admin
     {
+        public void setPass(string Pass)
+        {
+            this.Password = Pass;
+        }
+
+        public string getPass()
+        {
+            return Password;
+        }
+
         public string Id { get; set; }
 
         [Display(Name = "Mail")]

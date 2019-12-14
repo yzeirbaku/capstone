@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DomesticViolenceAPI.Filters;
 using LiteDB;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -12,6 +13,7 @@ namespace TextToxicityAPI.Controllers
 {
     [Produces("application/json")]
     [Route("api/user")]
+    [ApiKeyAuth]
     public class UserController : Controller
     {
         private  HelperMethods helperMethods = new HelperMethods();

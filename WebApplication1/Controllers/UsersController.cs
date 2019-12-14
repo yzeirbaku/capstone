@@ -17,19 +17,31 @@ namespace DomesticViolenceWebApp.Controllers
 
         public IActionResult Index()
         {
-            List<User> emptyList = new List<User>();
-            var deserializer = new JsonDeserializer();
-            var client = new RestClient(apiUrl);
-            var request = new RestRequest("api/user/all", Method.GET);
-            IRestResponse response = client.Execute(request);
-            if (deserializer.Deserialize<String>(response) == "There are no users in the database.")
+            var ApiKey = TempData.Peek("ApiKey") as string;
+            
+            if (ApiKey == null || ApiKey == "")
             {
-                return View(emptyList);
+                return RedirectToAction("Index", "Login");
             }
+
             else
             {
-                var usersList = deserializer.Deserialize<List<User>>(response);
-                return View(usersList.ToList());
+                List<User> emptyList = new List<User>();
+                var deserializer = new JsonDeserializer();
+                var client = new RestClient(apiUrl);
+                var request = new RestRequest("api/user/all", Method.GET);
+                request.AddHeader("ApiKey", ApiKey);
+                IRestResponse response = client.Execute(request);
+
+                if (deserializer.Deserialize<String>(response) == "There are no users in the database.")
+                {
+                    return View(emptyList);
+                }
+                else
+                {
+                    var usersList = deserializer.Deserialize<List<User>>(response);
+                    return View(usersList.ToList());
+                }
             }
         }
 
@@ -50,6 +62,7 @@ namespace DomesticViolenceWebApp.Controllers
 
             if (ModelState.IsValid)
             {
+                var ApiKey = TempData.Peek("ApiKey") as string;
                 var client = new RestClient(apiUrl);
                 var request = new RestRequest("api/user", Method.POST);
                 var newUser = new User()
@@ -66,6 +79,7 @@ namespace DomesticViolenceWebApp.Controllers
                 };
 
                 request.AddJsonBody(newUser);
+                request.AddHeader("ApiKey", ApiKey);
                 IRestResponse response = client.Execute(request);
                 if (deserializer.Deserialize<String>(response).Contains("Assign a new user id."))
                 {
@@ -80,10 +94,12 @@ namespace DomesticViolenceWebApp.Controllers
 
         public ActionResult Details(string userId)
         {
+            var ApiKey = TempData.Peek("ApiKey") as string;
             var deserializer = new JsonDeserializer();
             var client = new RestClient(apiUrl);
             var request = new RestRequest("api/user", Method.GET);
             request.AddHeader("userId", userId);
+            request.AddHeader("ApiKey", ApiKey);
             IRestResponse response = client.Execute(request);
             var user = deserializer.Deserialize<User>(response);
             return View(user);
@@ -92,10 +108,12 @@ namespace DomesticViolenceWebApp.Controllers
         // GET: Users/Delete/5
         public ActionResult Delete(string userId)
         {
+            var ApiKey = TempData.Peek("ApiKey") as string;
             var deserializer = new JsonDeserializer();
             var client = new RestClient(apiUrl);
             var request = new RestRequest("api/user", Method.GET);
             request.AddHeader("userId", userId);
+            request.AddHeader("ApiKey", ApiKey);
             IRestResponse response = client.Execute(request);
             var user = deserializer.Deserialize<User>(response);
             return View(user);
@@ -105,9 +123,11 @@ namespace DomesticViolenceWebApp.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(string userId)
         {
+            var ApiKey = TempData.Peek("ApiKey") as string;
             var client = new RestClient(apiUrl);
             var request = new RestRequest("api/user", Method.DELETE);
             request.AddQueryParameter("userId", userId);
+            request.AddHeader("ApiKey", ApiKey);
             IRestResponse response = client.Execute(request);
             return RedirectToAction("Index");
         }
@@ -116,10 +136,12 @@ namespace DomesticViolenceWebApp.Controllers
         // GET: Users/Edit/5
         public ActionResult Edit(string userId)
         {
+            var ApiKey = TempData.Peek("ApiKey") as string;
             var deserializer = new JsonDeserializer();
             var client = new RestClient(apiUrl);
             var request = new RestRequest("api/user", Method.GET);
             request.AddHeader("userId", userId);
+            request.AddHeader("ApiKey", ApiKey);
             IRestResponse response = client.Execute(request);
             var user = deserializer.Deserialize<User>(response);
             return View(user);
@@ -129,6 +151,8 @@ namespace DomesticViolenceWebApp.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Edit([Bind("Id,userId,name,age,gender,location,emergencyContactOne,emergencyContactTwo,emergencyContactThree")] User user)
         {
+            int genderType = 0;
+            var ApiKey = TempData.Peek("ApiKey") as string;
             var deserializer = new JsonDeserializer();
             if (user == null)
             {
@@ -139,13 +163,24 @@ namespace DomesticViolenceWebApp.Controllers
             {
                 var client = new RestClient(apiUrl);
                 var request = new RestRequest("api/user/update", Method.POST);
+
+                if (user.gender == "Male")
+                {
+                    genderType = 1;
+                }
+
+                if(user.gender == "Female")
+                {
+                    genderType = 0;
+                }
+
                 var newUser = new User()
                 {
                     Id = Guid.NewGuid().ToString(),
                     userId = user.userId,
                     name = user.name,
                     age = user.age,
-                    gender = user.gender,
+                    gender = genderType.ToString(),
                     location = user.location,
                     emergencyContactOne = user.emergencyContactOne,
                     emergencyContactTwo = user.emergencyContactTwo,
@@ -154,6 +189,7 @@ namespace DomesticViolenceWebApp.Controllers
 
                 request.AddHeader("userId", user.userId);
                 request.AddJsonBody(newUser);
+                request.AddHeader("ApiKey", ApiKey);
                 IRestResponse response = client.Execute(request);
                 return RedirectToAction("Index");
             }
@@ -162,6 +198,7 @@ namespace DomesticViolenceWebApp.Controllers
 
         public IActionResult LogOut()
         {
+            TempData.Remove("ApiKey");
             return RedirectToAction("Index", "Home");
         }
     }

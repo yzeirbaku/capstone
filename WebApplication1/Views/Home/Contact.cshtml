@@ -10,7 +10,7 @@
 </style>
 
 <hr />
-<body>
+<body onbeforeunload="Confirm()" onunload="Confirm()">
 
     <address>
         Yzeir Baku<br />
@@ -23,3 +23,9 @@
     </address>
 
 </body>
+
+<script type='text/javascript'>
+    function Confirm() {
+        @TempData.Remove("ApiKey");
+    }
+</script>

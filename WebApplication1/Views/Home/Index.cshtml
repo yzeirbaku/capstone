@@ -7,7 +7,7 @@
     }
 </style>
 
-<body>
+<body onbeforeunload="Confirm()" onunload="Confirm()">
     <br /><br />
     <div style="text-align:center; height:370px">
         <img src="https://doziermillerlaw.com/wp-content/uploads/2019/03/Stop-Domestic-Violence-Logo.png" alt="No to domestic violence" height="330" width="650" />
@@ -21,3 +21,9 @@
         </a>
     </div>
 </body>
+
+<script type='text/javascript'>
+    function Confirm() {
+        @TempData.Remove("ApiKey");
+    }
+</script>

@@ -5,23 +5,25 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DomesticViolenceWebApp.Controllers
 {
-    [Route("admin")]
+    [Route("Admin")]
     public class LoginController : Controller
     {
-        [Route("login")]
+
+        [Route("Login")]
         public IActionResult Index()
         {
             using (var database = new LiteDatabase(@"Admins.db"))
             {
                 var admins = database.GetCollection<Admin>("Admin");
-                var admin = admins.FindOne(x => x.Mail == "admin" && x.Password == "1234");
+                var admin = admins.FindOne(x => x.Mail == "admin" && x.Password == "AdminApiKey");
+
                 if (admin == null)
                 {
                     var newAdmin = new Admin
                     {
                         Id = Guid.NewGuid().ToString(),
                         Mail = "admin",
-                        Password = "1234"
+                        Password = "AdminApiKey"
                     };
                     admins.Insert(newAdmin);
                 }
@@ -29,7 +31,7 @@ namespace DomesticViolenceWebApp.Controllers
             return View();
         }
 
-        [Route("login")]
+        [Route("Login")]
         [HttpPost]
         public ActionResult Authorize(DomesticViolenceWebApp.Models.Admin admin)
         {
@@ -39,7 +41,7 @@ namespace DomesticViolenceWebApp.Controllers
                 var searchedAdmin = admins.FindOne(x => x.Mail == admin.Mail && x.Password == admin.Password);
                 if (searchedAdmin == null)
                 {
-                    admin.loginError = "Wrong username or password ";
+                    admin.loginError = "Wrong mail or password ";
                     return View("Index", admin);
                 }
 
@@ -47,6 +49,7 @@ namespace DomesticViolenceWebApp.Controllers
                 {
                     if (ModelState.IsValid)
                     {
+                        TempData["ApiKey"] = admin.Password;
                         return RedirectToAction("Index", "Users");
                     }
                     else
