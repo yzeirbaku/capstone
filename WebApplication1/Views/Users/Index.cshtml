@@ -1,21 +1,92 @@
-﻿@model IEnumerable<DomesticViolenceWebApp.Models.User>
+﻿@model IPagedList<DomesticViolenceWebApp.Models.User>
 
-@{
-    ViewBag.Title = "Users";
-}
+@using X.PagedList.Mvc.Core;
+@using X.PagedList;
+@using X.PagedList.Mvc.Common
+
+<style>
+    #textbox {
+        border-radius: 8px;
+        height: 28px;
+        width: 185px;
+        border: 1px solid #cdcdcd;
+        border-color: #008CBA;
+        background-color: AliceBlue;
+        font-size: 12px;
+    }
+
+    .table td {
+        text-align: center;
+    }
+
+    .table th {
+        text-align: center;
+        background-color: AliceBlue;
+        font-size: 15px;
+    }
+
+    .button {
+        background-color: #4CAF50; /* Green */
+        border: none;
+        color: white;
+        padding: 3px 10px;
+        text-align: center;
+        text-decoration: none;
+        display: inline;
+        border-radius: 4px;
+        margin-top: 10px;
+        -webkit-transition-duration: 0.4s; /* Safari */
+        transition-duration: 0.4s;
+        cursor: pointer;
+        border-radius: 16px;
+    }
+
+    .button2 {
+        background-color: white;
+        color: black;
+        border: 1.45px solid #008CBA;
+    }
+
+        .button2:hover {
+            background-color: #52B0D2;
+            color: white;
+        }
+</style>
 
 <h2>Users</h2>
 
-@Html.Raw(TempData["msg"])
 
-<p>
-    @Html.ActionLink("Create New", "Create")
-</p>
-<p>
-    @Html.ActionLink("Log Out", "LogOut")
-</p>
-<table class="table">
+@Html.ActionLink("Create User", "Create")
+&nbsp <img src="http://simpleicon.com/wp-content/uploads/add-user.png" alt="create" width="17" height="17" />
+<br />
+@Html.ActionLink("Log Out", "LogOut")
+&nbsp <img src="https://cdn2.iconfinder.com/data/icons/picons-essentials/57/logout-512.png" alt="logout" width="17" height="17" />
+<br />
+
+@using (Html.BeginForm("Index", "Users", FormMethod.Get))
+{
+    <div style="display:inline-block">
+        <input type="text" name="searchedUser" id="textbox" value="@ViewBag.Message" />
+    </div>
+    <div style="display:inline; margin-left:-2px;">
+        <button type="submit" class="button button2" id="searchButton">
+            <img src="http://simpleicon.com/wp-content/uploads/active-search.png" alt="search" width="15" height="15" />
+        </button>
+    </div>
+    @if (ViewBag.Message != null)
+    {
+        <div style="display:inline; margin-left:-2px">
+            <img style="margin-top:-1px; cursor:pointer" onclick="clearSearch()" src="http://www.myiconfinder.com/uploads/iconsets/256-256-46602df56c953c27348b14d8651dcdc5-close.png" alt="cancel" width="22" height="22" />
+        </div>
+
+    }
+
+}
+<br />
+<table class="table" id="table">
     <tr>
+        <th>
+        </th>
         <th>
             User Id
         </th>
@@ -32,24 +103,43 @@
             Location
         </th>
         <th>
-            Emergency Contact1#
+            Contact 1
         </th>
         <th>
-            Emergency Contact2#
+            Contact 2
         </th>
         <th>
-            Emergency Contact3#
+            Contact 3
         </th>
-        <th style="padding-left:20px">
+        <th style="text-align:center; padding-left:5px">
             Actions
         </th>
     </tr>
 
+
     @foreach (var item in Model)
     {
         <tr>
+            <td style="text-align:right; padding-left:10px">
+                <a onclick="copyToClipboard('@item.userId')" style="text-decoration:none; cursor:pointer">
+                    <img style="margin-bottom:2px;" title="Copy to Clipboard" src="https://image.flaticon.com/icons/png/512/60/60990.png" width="16" height="18" />
+                </a>
+            </td>
             <td>
-                @Html.DisplayFor(modelItem => item.userId)
+                
+                &nbsp;
+                @{
+                    var newUserId = "";
+                    if (item.userId.Length >= 18)
+                    {
+                        newUserId = item.userId.Substring(0, 16) + "...";
+                    }
+                    else
+                    {
+                        newUserId = item.location;
+                    }
+                    <text>@newUserId</text>
+                }
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.name)
@@ -61,7 +151,18 @@
                 @Html.DisplayFor(modelItem => item.gender)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.location)
+                @{
+                    var newLocation = "";
+                    if (item.location.Length >= 15)
+                    {
+                        newLocation = item.location.Substring(0, 13) + "...";
+                    }
+                    else
+                    {
+                        newLocation = item.location;
+                    }
+                    <text>@newLocation</text>
+                }
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.emergencyContactOne)
@@ -72,14 +173,14 @@
             <td>
                 @Html.DisplayFor(modelItem => item.emergencyContactThree)
             </td>
-            <td style="text-align:left">
-                <a href="@Url.Action("Edit","Users", new { userId = item.userId })">
+            <td style="text-align:center; text-decoration:none; padding-left:20px">
+                <a style="text-decoration:none" href="@Url.Action("Edit","Users", new { userId = item.userId })">
                     <img src="https://cdn2.iconfinder.com/data/icons/flat-ui-icons-24-px/24/new-24-512.png" alt="edit" height="20" width="20" />
                 </a> |
-                <a href="@Url.Action("Details","Users", new { userId = item.userId })">
+                <a style="text-decoration:none" href="@Url.Action("Details","Users", new { userId = item.userId })">
                     <img src="https://cdn1.iconfinder.com/data/icons/education-set-4/512/information-2-512.png" alt="details" height="20" width="20" />
                 </a> |
-                <a href="@Url.Action("Delete","Users", new { userId = item.userId })">
+                <a style="text-decoration:none" href="@Url.Action("Delete","Users", new { userId = item.userId })">
                     <img src="https://icon-library.net/images/delete-icon-transparent-background/delete-icon-transparent-background-2.jpg" alt="delete" height="20" width="20" />
                 </a>
 
@@ -88,3 +189,38 @@
     }
 
 </table>
+
+@Html.PagedListPager(Model, page => Url.Action("Index", "Users", new { page, searchedUser = Context.Request.Query["searchedUser"] }))
+
+
+<script>
+    function copyToClipboard(text) {
+        if (window.clipboardData && window.clipboardData.setData) {
+            // Internet Explorer-specific code path to prevent textarea being shown while dialog is visible.
+            return clipboardData.setData("Text", text);
+
+        }
+        else if (document.queryCommandSupported && document.queryCommandSupported("copy")) {
+            var textarea = document.createElement("textarea");
+            textarea.textContent = text;
+            textarea.style.position = "fixed";  // Prevent scrolling to bottom of page in Microsoft Edge.
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                return document.execCommand("copy");  // Security exception may be thrown by some browsers.
+            }
+            catch (ex) {
+                console.warn("Copy to clipboard failed.", ex);
+                return false;
+            }
+            finally {
+                document.body.removeChild(textarea);
+            }
+        }
+    }
+
+    function clearSearch() {
+        document.getElementById("textbox").value = "";
+        document.getElementById("searchButton").click();
+    }
+</script>

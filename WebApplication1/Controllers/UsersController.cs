@@ -4,10 +4,11 @@ using RestSharp;
 using RestSharp.Serialization.Json;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Net;
-using System.Web;
+using X.PagedList.Mvc.Core;
+using X.PagedList;
+using X.PagedList.Mvc.Common;
 
 namespace DomesticViolenceWebApp.Controllers
 {
@@ -15,10 +16,11 @@ namespace DomesticViolenceWebApp.Controllers
     {
         private static string apiUrl = "http://domesticviolenceapi.azurewebsites.net";
 
-        public IActionResult Index()
+        public IActionResult Index(string searchedUser, int? page)
         {
+            ViewBag.Message = searchedUser;
+
             var ApiKey = TempData.Peek("ApiKey") as string;
-            
             if (ApiKey == null || ApiKey == "")
             {
                 return RedirectToAction("Index", "Login");
@@ -26,12 +28,21 @@ namespace DomesticViolenceWebApp.Controllers
 
             else
             {
-                List<User> emptyList = new List<User>();
+
+                IQueryable<User> users = new List<User>().AsQueryable();
+                User user = new User();
+                PagedList<User> emptyList = new PagedList<User>(users, 1,1);
                 var deserializer = new JsonDeserializer();
                 var client = new RestClient(apiUrl);
                 var request = new RestRequest("api/user/all", Method.GET);
                 request.AddHeader("ApiKey", ApiKey);
                 IRestResponse response = client.Execute(request);
+
+                if(response.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    TempData["unauthorized"] = "<script>alert('You are unauthorized to view this page!');</script>";
+                    return RedirectToAction("Index", "Login");
+                }
 
                 if (deserializer.Deserialize<String>(response) == "There are no users in the database.")
                 {
@@ -40,7 +51,12 @@ namespace DomesticViolenceWebApp.Controllers
                 else
                 {
                     var usersList = deserializer.Deserialize<List<User>>(response);
-                    return View(usersList.ToList());
+                    if(searchedUser == null)
+                    {
+                        searchedUser = "";
+                    }
+                    return View(usersList.Where(x => x.name.Contains(searchedUser) || x.gender.Contains(searchedUser) 
+                    || x.location.Contains(searchedUser) || x.userId.Contains(searchedUser) || searchedUser.Length == 0).ToList().ToPagedList(page ?? 1,6));
                 }
             }
         }
@@ -164,12 +180,12 @@ namespace DomesticViolenceWebApp.Controllers
                 var client = new RestClient(apiUrl);
                 var request = new RestRequest("api/user/update", Method.POST);
 
-                if (user.gender == "Male")
+                if (user.gender == "Male" || user.gender == "male")
                 {
                     genderType = 1;
                 }
 
-                if(user.gender == "Female")
+                if(user.gender == "Female" || user.gender == "female")
                 {
                     genderType = 0;
                 }

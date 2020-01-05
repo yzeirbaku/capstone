@@ -16,7 +16,6 @@ namespace TextToxicityAPI.Models
         public string Context { get; set; }
         public int CurseCount { get; set; }
         public float CurseRatio { get; set; }
-        public float GoodContextProbability { get; set; }
     }
 
     public class User

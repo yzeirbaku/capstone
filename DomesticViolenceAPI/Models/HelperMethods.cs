@@ -1,4 +1,7 @@
-﻿using LiteDB;
+﻿using DomesticViolenceAPI;
+using LiteDB;
+using Microsoft.ML;
+using Microsoft.ML.Transforms.Text;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -138,6 +141,41 @@ namespace TextToxicityAPI.Models
             return count;
         }
 
+        public string processedText(string text)
+        {
+            var context = new MLContext();
+            var emptyData = new List<TextData>();
+            var data = context.Data.LoadFromEnumerable(emptyData);
+
+            var tokenization = context.Transforms.Text.TokenizeIntoWords("Tokens", "Text", separators: new[] { ' ', '.', ',' })
+                .Append(context.Transforms.Text.RemoveDefaultStopWords("Tokens", "Tokens",
+                    StopWordsRemovingEstimator.Language.English));
+            var stopWordsModel = tokenization.Fit(data);
+            var engine = context.Model.CreatePredictionEngine<TextData, TextTokens>(stopWordsModel);
+            var newText = engine.Predict(new TextData { Text = text });
+
+            var result = String.Join(" ", newText.Tokens);
+            return result;
+        }
+
+        public List<DateTime> GetDateRange(DateTime StartingDate, DateTime EndingDate)
+        {
+            List<DateTime> rv = new List<DateTime>();
+
+            if (StartingDate > EndingDate)
+            {
+                return rv;
+            }
+            
+            DateTime tmpDate = StartingDate;
+            do
+            {
+                rv.Add(tmpDate);
+                tmpDate = tmpDate.AddDays(1);
+            } while (tmpDate <= EndingDate);
+            return rv;
+        }
+
         public UserTextAnalysis getUserTextAnalysis(List<TextAnalysis> list, string userId)
         {
             List<TextAnalysisInfo> textAnalysesInfo = new List<TextAnalysisInfo>();
@@ -163,8 +201,7 @@ namespace TextToxicityAPI.Models
                         {
                             Context = textAnalysisResultJson.Context,
                             CurseCount = textAnalysisResultJson.CurseCount,
-                            CurseRatio = textAnalysisResultJson.CurseRatio,
-                            GoodContextProbability = textAnalysisResultJson.GoodContextProbability
+                            CurseRatio = textAnalysisResultJson.CurseRatio
                         };
 
                         TextAnalysisInfo textAnalysisInfo = new TextAnalysisInfo

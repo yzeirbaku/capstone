@@ -5,6 +5,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+@Html.Raw(TempData["unauthorized"])
 
 <!DOCTYPE html>
 <html>
@@ -66,7 +67,6 @@
             border-collapse: separate;
             border-spacing: 0 2px;
         }
-
     </style>
 </head>
 <body>
@@ -74,77 +74,77 @@
     <div id="login-div">
         @using (Html.BeginForm("Authorize", "Login", FormMethod.Post))
         {
-        <table>
-            <tr>
-                <td colspan="2" style="font-weight:600; font-size:40px; text-align:right; padding-top:35px; padding-left:60px">Admin Login</td>
-            </tr>
-            <tr>
-                <td><br /></td>
-                <td><br /></td>
-            </tr>
-            <tr>
-                <td>
-                    <br />
-                </td>
-                <td></td>
-            </tr>
-            <tr>
-                <td>
-                    <b style="font-size:17px;">Mail</b>
-                    <br />
-                </td>
-                <td style="padding-top:2px; padding-left:8px">
-                    @Html.EditorFor(model => model.Mail,
-                    new { htmlAttributes = new { @id = "textbox" } })
-                    <br />
-                </td>
-            </tr>
-            <tr>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td>
-                    <b style="font-size:17px">Password</b>
-                    <br />
-                </td>
-                <td style="padding-top:2px; padding-left:8px">
-                    @Html.EditorFor(model => model.Password,
-                    new { htmlAttributes = new { @id = "textbox" } })
-                    <br />
-                </td>
-            </tr>
-            <tr>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td></td>
-                <td style="color:red; padding-top:2px; padding-left:16px">
-                    @Html.DisplayFor(x => x.loginError)
-                </td>
-            </tr>
-            <tr>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td></td>
-                <td style="padding-top:3px; padding-left:6px">
-                    <button type="submit" name="name" class="button button2">Login</button>
-                </td>
-            </tr>
-            <tr>
-                <td></td>
-                <td style="padding-top:1px; padding-left:6px">
-                    <button type="reset" name="name" value="Clear" class="button button2" style="margin-top:-4px">Clear</button>
-                </td>
-            </tr>
-        </table>
+            <table>
+                <tr>
+                    <td colspan="2" style="font-weight:600; font-size:40px; text-align:right; padding-top:35px; padding-left:60px">Admin Login</td>
+                </tr>
+                <tr>
+                    <td><br /></td>
+                    <td><br /></td>
+                </tr>
+                <tr>
+                    <td>
+                        <br />
+                    </td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>
+                        <b style="font-size:17px;">Mail</b>
+                        <br />
+                    </td>
+                    <td style="padding-top:2px; padding-left:8px">
+                        @Html.EditorFor(model => model.Mail,
+                        new { htmlAttributes = new { @id = "textbox" } })
+                        <br />
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>
+                        <b style="font-size:17px">Password</b>
+                        <br />
+                    </td>
+                    <td style="padding-top:2px; padding-left:8px">
+                        @Html.EditorFor(model => model.Password,
+                        new { htmlAttributes = new { @id = "textbox" } })
+                        <br />
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td style="color:red; padding-top:2px; padding-left:16px">
+                        @Html.DisplayFor(x => x.loginError)
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td style="padding-top:3px; padding-left:6px">
+                        <button type="submit" name="name" class="button button2">Login</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td style="padding-top:1px; padding-left:6px">
+                        <button type="reset" name="name" value="Clear" class="button button2" style="margin-top:-4px">Clear</button>
+                    </td>
+                </tr>
+            </table>
         }
 
     </div>

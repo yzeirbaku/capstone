@@ -16,6 +16,7 @@ using System.Text.RegularExpressions;
 using LiteDB;
 using TextToxicityAPI.Models;
 using System.Globalization;
+using DomesticViolenceAPI;
 
 namespace TextToxicityAPI.Controllers
 {
@@ -26,17 +27,12 @@ namespace TextToxicityAPI.Controllers
         private HelperMethods helperMethods = new HelperMethods();
         public static string _dataPath = Path.Combine(Environment.CurrentDirectory, "Data", "domestic_violence_dataset.txt");
 
-        [HttpGet("welcome")]
-        public ViewResult Welcome()
-        {
-            return View();
-        }
-
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public IActionResult GetTextAnalysis([FromBody] string text)
         {
-            var textAnalysisResult = textAnalysis(text);
+            var result = helperMethods.processedText(text);
+            var textAnalysisResult = textAnalysis(result);
             var textAnalysisResultJson = JsonConvert.DeserializeObject(textAnalysisResult);
             return Ok(textAnalysisResultJson);
         }
@@ -47,7 +43,8 @@ namespace TextToxicityAPI.Controllers
         public IActionResult SaveTextAnalysisForUser([FromHeader] string userId, [FromHeader] string timestamp, [FromHeader] string date, [FromHeader] string lastKnownLocation, [FromBody] string text)
         {
             TextAnalysis userTextAnalysis = null;
-            var textAnalysisResult = textAnalysis(text);
+            var result = helperMethods.processedText(text);
+            var textAnalysisResult = textAnalysis(result);
             using (var database = new LiteDatabase(@"TextAnalysis1.db"))
             {
                 var usersTextAnalysis = database.GetCollection<TextAnalysis>("UserTextAnalysis");
@@ -161,14 +158,9 @@ namespace TextToxicityAPI.Controllers
                         {
                             userTextAnalyses.Delete(item.Id);
                         }
-                        if (userTextAnalyses.Count() == 0)
-                        {
-                            return Ok("All text analyses for the user with id " + userId + " have been deleted from the database.");
-                        }
-                        else
-                        {
-                            return BadRequest("Could not delete text analyses for the user with id " + userId + "!");
-                        }
+
+                        return Ok("All text analyses for the user with id " + userId + " have been deleted from the database.");
+
                     }
                 }
             }
@@ -197,9 +189,9 @@ namespace TextToxicityAPI.Controllers
                     if (startingTime != null && endingTime != null)
                     {
                         var dateAndStartTime = date + " " + startingTime;
-                        var startTime = DateTime.ParseExact(dateAndStartTime, "dd-MM-yyyy HH:mm:ss", CultureInfo.InvariantCulture);
+                        var startTime = DateTime.ParseExact(dateAndStartTime, "MM-dd-yyyy HH:mm:ss", CultureInfo.InvariantCulture);
                         var dateAndEndTime = date + " " + endingTime;
-                        var endTime = DateTime.ParseExact(dateAndEndTime, "dd-MM-yyyy HH:mm:ss", CultureInfo.InvariantCulture);
+                        var endTime = DateTime.ParseExact(dateAndEndTime, "MM-dd-yyyy HH:mm:ss", CultureInfo.InvariantCulture);
 
                         var startTimeToParse = startTime.Hour.ToString() + ":" + startTime.Minute + ":" + startTime.Second;
                         var endTimeToParse = endTime.Hour.ToString() + ":" + endTime.Minute + ":" + endTime.Second;
@@ -246,7 +238,12 @@ namespace TextToxicityAPI.Controllers
                             foreach (var item in textAnalysesTimestampsWithinRange)
                             {
                                 var userTextAnalysesWithinTimeRange = allTextAnalysisForUserWithDate.Where(x => x.timestamp == item).ToList();
-                                infoTextAnalyses.Add(userTextAnalysesWithinTimeRange.FirstOrDefault());
+
+                                foreach (var timeRange in userTextAnalysesWithinTimeRange)
+                                {
+                                    infoTextAnalyses.Add(timeRange);
+                                }
+                                break;
                             }
 
                             userTextAnalysisJson = helperMethods.getUserTextAnalysis(infoTextAnalyses, userId);
@@ -275,6 +272,176 @@ namespace TextToxicityAPI.Controllers
                     }
                 }
                 return Ok(userTextAnalysisJson);
+            }
+        }
+
+        [HttpGet("user/dates")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public IActionResult GetTextAnalysisForUserBetweenDates([FromHeader] string userId, [FromHeader] string startingDate, [FromHeader] string endingDate, [FromHeader] string negative)
+        {
+            List<TextAnalysis> infoTextAnalyses = new List<TextAnalysis>();
+            UserTextAnalysis userTextAnalysisJson = new UserTextAnalysis();
+            List<TextAnalysisResult> textAnalysisResults = new List<TextAnalysisResult>();
+            List<string> textAnalysesTimestampsWithinRange = new List<string>();
+            List<string> parsedDatesBetweenRange = new List<string>();
+            List<string> datesBetweenRange = new List<string>();
+            List<TextAnalysis> allTextAnalysesForDateRange = new List<TextAnalysis>();
+
+            if (negative != null)
+            {
+                if (startingDate != null && endingDate != null)
+                {
+                    var changedStartingDate = startingDate.Replace("-", "/");
+                    var changedEndingDate = endingDate.Replace("-", "/");
+                    var parsedStartingDate = DateTime.ParseExact(changedStartingDate, "MM/dd/yyyy", null);
+                    var parsedEndingDate = DateTime.ParseExact(changedEndingDate, "MM/dd/yyyy", null);
+
+                    if ((helperMethods.GetDateRange(parsedStartingDate, parsedEndingDate)).Count() == 0)
+                    {
+                        return BadRequest("Start date is bigger than end date!");
+                    }
+
+                    foreach (DateTime date in helperMethods.GetDateRange(parsedStartingDate, parsedEndingDate))
+                    {
+                        parsedDatesBetweenRange.Add(date.ToShortDateString());
+                    }
+
+                    foreach (var date in parsedDatesBetweenRange)
+                    {
+                        var changedDate = date.Replace("/", "-");
+                        datesBetweenRange.Add(changedDate);
+                    }
+                }
+                else if (startingDate == null || endingDate == null)
+                {
+                    return BadRequest("Start or end date not specified!");
+                }
+
+                using (var database = new LiteDatabase(@"TextAnalysis1.db"))
+                {
+                    var usersTextAnalysis = database.GetCollection<TextAnalysis>("UserTextAnalysis");
+                    var allUsers = database.GetCollection<User>("User");
+                    var user = allUsers.FindOne(x => x.userId == userId);
+                    if (user == null)
+                    {
+                        return NotFound("The user with id " + userId + " could not be found!");
+                    }
+                    else
+                    {
+                        var allTextAnalysisForUser = usersTextAnalysis.Find(x => x.userId == userId);
+                        foreach (var date in datesBetweenRange)
+                        {
+                            var allTextAnalysisForUserWithDate = allTextAnalysisForUser.Where(x => x.date == date);
+                            foreach (var item in allTextAnalysisForUserWithDate)
+                            {
+                                allTextAnalysesForDateRange.Add(item);
+                            }
+
+                        }
+
+                        if (allTextAnalysisForUser.Count() == 0)
+                        {
+                            return NotFound("The user with id " + userId + " has no text analysis saved.");
+                        }
+                        else if (allTextAnalysesForDateRange.Count() == 0)
+                        {
+                            return NotFound("The user with id " + userId + " has no text analysis saved for this date range.");
+                        }
+                        else
+                        {
+                            foreach(var textAnalysis in allTextAnalysesForDateRange)
+                            {
+                                var textAnalysisResultJson = JsonConvert.DeserializeObject<TextAnalysisResult>(textAnalysis.textAnalysisResult);
+                                textAnalysisResults.Add(textAnalysisResultJson);
+                            }
+
+                            var negativeTextAnalysisResults = textAnalysisResults.Where(x => x.Context == "Negative").ToList();
+
+                            foreach (var item in negativeTextAnalysisResults)
+                            {
+                                var negativeList = allTextAnalysesForDateRange.Where(x => x.textAnalysisResult == JsonConvert.SerializeObject(item)).ToList();
+
+                                foreach (var negativeItem in negativeList)
+                                {
+                                    infoTextAnalyses.Add(negativeItem);
+                                }
+                                break;
+                            }
+                            
+                            userTextAnalysisJson = helperMethods.getUserTextAnalysis(infoTextAnalyses, userId);
+                            return Ok(userTextAnalysisJson);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                if (startingDate != null && endingDate != null)
+                {
+                    var changedStartingDate = startingDate.Replace("-", "/");
+                    var changedEndingDate = endingDate.Replace("-", "/");
+                    var parsedStartingDate = DateTime.ParseExact(changedStartingDate, "MM/dd/yyyy", null);
+                    var parsedEndingDate = DateTime.ParseExact(changedEndingDate, "MM/dd/yyyy", null);
+
+                    if ((helperMethods.GetDateRange(parsedStartingDate, parsedEndingDate)).Count() == 0)
+                    {
+                        return BadRequest("Start date is bigger than end date!");
+                    }
+
+                    foreach (DateTime date in helperMethods.GetDateRange(parsedStartingDate, parsedEndingDate))
+                    {
+                        parsedDatesBetweenRange.Add(date.ToShortDateString());
+                    }
+
+                    foreach (var date in parsedDatesBetweenRange)
+                    {
+                        var changedDate = date.Replace("/", "-");
+                        datesBetweenRange.Add(changedDate);
+                    }
+                }
+                else if (startingDate == null || endingDate == null)
+                {
+                    return BadRequest("Start or end date not specified!");
+                }
+
+                using (var database = new LiteDatabase(@"TextAnalysis1.db"))
+                {
+                    var usersTextAnalysis = database.GetCollection<TextAnalysis>("UserTextAnalysis");
+                    var allUsers = database.GetCollection<User>("User");
+                    var user = allUsers.FindOne(x => x.userId == userId);
+                    if (user == null)
+                    {
+                        return NotFound("The user with id " + userId + " could not be found!");
+                    }
+                    else
+                    {
+                        var allTextAnalysisForUser = usersTextAnalysis.Find(x => x.userId == userId);
+                        foreach (var date in datesBetweenRange)
+                        {
+                            var allTextAnalysisForUserWithDate = allTextAnalysisForUser.Where(x => x.date == date);
+                            foreach (var item in allTextAnalysisForUserWithDate)
+                            {
+                                allTextAnalysesForDateRange.Add(item);
+                            }
+
+                        }
+
+                        if (allTextAnalysisForUser.Count() == 0)
+                        {
+                            return NotFound("The user with id " + userId + " has no text analysis saved.");
+                        }
+                        else if (allTextAnalysesForDateRange.Count() == 0)
+                        {
+                            return NotFound("The user with id " + userId + " has no text analysis saved for this date range.");
+                        }
+                        else
+                        {
+                            userTextAnalysisJson = helperMethods.getUserTextAnalysis(allTextAnalysesForDateRange, userId);
+                            return Ok(userTextAnalysisJson);
+                        }
+                    }
+                }
             }
         }
 
@@ -314,7 +481,12 @@ namespace TextToxicityAPI.Controllers
                         foreach (var item in negativeTextAnalysisResults)
                         {
                             var negativeList = allTextAnalysisForUserWithDate.Where(x => x.textAnalysisResult == JsonConvert.SerializeObject(item)).ToList();
-                            infoTextAnalyses.Add(negativeList.FirstOrDefault());
+
+                            foreach (var negative in negativeList)
+                            {
+                                infoTextAnalyses.Add(negative);
+                            }
+                            break;
                         }
 
                         if (allTextAnalysisForUser.Count() == 0)
@@ -346,7 +518,12 @@ namespace TextToxicityAPI.Controllers
                         foreach (var item in negativeTextAnalysisResults)
                         {
                             var negativeList = allTextAnalysisForUser.Where(x => x.textAnalysisResult == JsonConvert.SerializeObject(item)).ToList();
-                            infoTextAnalyses.Add(negativeList.FirstOrDefault());
+
+                            foreach (var negative in negativeList)
+                            {
+                                infoTextAnalyses.Add(negative);
+                            }
+                            break;
                         }
 
                         if (allTextAnalysisForUser.Count() == 0)
@@ -436,8 +613,7 @@ namespace TextToxicityAPI.Controllers
             {
                 Context = (Convert.ToBoolean(resultPrediction.Prediction) ? "Positive" : "Negative"),
                 CurseCount = curseCount,
-                CurseRatio = curseRatio,
-                GoodContextProbability = resultPrediction.Probability
+                CurseRatio = curseRatio
             };
 
             var returnJson = JsonConvert.SerializeObject(result);
